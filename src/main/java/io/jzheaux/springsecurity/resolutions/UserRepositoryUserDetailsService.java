@@ -6,6 +6,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,16 +22,34 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return this.userRepository.findByUsername(username)
-                .map(BridgeUser::new)
+                .map(this::map)
                 .orElseThrow(() -> new UsernameNotFoundException("invalid user"));
     }
 
-    private static class BridgeUser extends User implements UserDetails{
-        public BridgeUser(User user){
+    private BridgeUser map(User user) {
+        Collection<GrantedAuthority> authorities = new HashSet<>();
+        for (UserAuthority userAuthority : user.getUserAuthorities()) {
+            String authority = userAuthority.getAuthority();
+            if ("ROLE_ADMIN".equals(authority)){
+                authorities.add(new SimpleGrantedAuthority("resolution:read"));
+                authorities.add(new SimpleGrantedAuthority("resolution:write"));
+            }
+
+            authorities.add(new SimpleGrantedAuthority(authority));
+        }
+        return new BridgeUser(user, authorities);
+    }
+
+    private static class BridgeUser extends User implements UserDetails {
+
+        private final Collection<GrantedAuthority> authorities;
+
+        public BridgeUser(User user, Collection<GrantedAuthority> authorities) {
             super(user);
+            this.authorities = authorities;
         }
 
-        public List<GrantedAuthority> getAuthorities(){
+        public List<GrantedAuthority> getAuthorities() {
             return this.userAuthorities.stream()
                     .map(UserAuthority::getAuthority)
                     .map(SimpleGrantedAuthority::new)
@@ -50,5 +70,7 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
         public boolean isCredentialsNonExpired() {
             return this.enabled;
         }
+
+
     }
 }
