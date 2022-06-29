@@ -21,6 +21,7 @@ public class ResolutionController {
     @GetMapping("/resolutions")
     @PreAuthorize("hasAuthority('READ')")
     @PostFilter("@post.filter(#root)")
+    @CrossOrigin(allowCredentials = "true")
     public Iterable<Resolution> read() {
         return this.resolutions.findAll();
     }
