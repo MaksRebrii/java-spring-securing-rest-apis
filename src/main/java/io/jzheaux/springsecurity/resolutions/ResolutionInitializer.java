@@ -21,23 +21,29 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 
 		User admin = new User("admin",
 				"{bcrypt}$2a$10$bTu5ilpT4YILX8dOWM/05efJnoSlX4ElNnjhNopL9aPoRyUgvXAYa");
+		admin.setFullName("Admin Adminson");
 		admin.grantAuthority("ROLE_ADMIN");
 		this.userRepository.save(admin);
 
 		User user = new User("user",
 				"{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
+		user.setFullName("User Userson");
 		user.grantAuthority("resolution:read");
+		user.grantAuthority("user:read");
 		user.grantAuthority("resolution:write");
 		this.userRepository.save(user);
 
-		User hashRead = new User("hashread",
+		User hasRead = new User("hashread",
 				"{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
-		hashRead.grantAuthority("resolution:read");
-		this.userRepository.save(hashRead);
+		hasRead.setFullName("Has Read");
+		hasRead.grantAuthority("resolution:read");
+		hasRead.grantAuthority("user:read");
+		this.userRepository.save(hasRead);
 
-		User hashWrite = new User("hashwrite",
+		User hasWrite = new User("hashwrite",
 				"{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
+		hasWrite.setFullName("Has Write");
 		user.grantAuthority("resolution:write");
-		this.userRepository.save(hashWrite);
+		this.userRepository.save(hasWrite);
 	}
 }
